@@ -1,0 +1,18 @@
+{
+	"champsEnTrop": 845,
+	"colisage": [
+		{
+			"champsEnTrop": 845,
+			"longueur": 600,
+			"largeur": 150,
+			"hauteur": 46,
+			"poids": 51.0,
+			"estSolide": true
+		}
+	],
+	"adresseLivraison": {
+		"champsEnTrop": 845,
+		"lat": 40.887, 
+		"lng": 2.5213
+	}
+}

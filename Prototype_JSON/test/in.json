@@ -1,0 +1,29 @@
+{
+	"colisage": [
+		{
+			"longueur": 600,
+			"largeur": 150,
+			"hauteur": 46,
+			"poids": 51.0,
+			"estSolide": true
+		},
+		{
+			"longueur": 1000,
+			"largeur": 150,
+			"hauteur": 160,
+			"poids": 5000.0,
+			"estSolide": true
+		},
+		{
+			"longueur": 10,
+			"largeur": 15,
+			"hauteur": 16,
+			"poids": 5.0,
+			"estSolide": true
+		}
+	],
+	"adresseLivraison": {
+		"lat": 40.887, 
+		"lng": 2.5213
+	}
+}
