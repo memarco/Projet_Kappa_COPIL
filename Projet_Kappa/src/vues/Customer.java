@@ -4,6 +4,16 @@ package vues;
 
 public class Customer {
 
+	/**
+	 * This class contains all the informations of a bank customer
+	 * FIRSTNAME
+	 * LASTNAME
+	 * AGE
+	 * SEXE
+	 * ADRESS
+	 * ACTIVITY
+	 **/
+
 	private String first_name;
 	private String last_name;
 	private int age;

@@ -1,7 +1,10 @@
 package vues;
 
 public class Accounts {
-
+/**
+ * This class contains all the informations about account
+ * account number and the balance
+ **/
 	private int account_id;
 	private int value;
 

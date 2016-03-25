@@ -21,21 +21,26 @@ import javax.swing.JTextField;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import Handler.ProtocoleHandler;
+import Controler.ProtocoleHandler;
 
-public class Update extends JFrame implements ActionListener {
+public class UpdateGui extends JFrame implements ActionListener {
+	
+	
+	/**
+	 * This class manages the update of customer account: deposit or withdraw money
+	 **/
 	
 	//-------------- for update---------------
 		JLabel id_count= new JLabel("Numéro de compte:");
 		JTextField JT_count=new JTextField(10);
 		JLabel balance= new JLabel("Donner le montant:");
 		JTextField JT_balance=new JTextField(10);
-		JButton deposit=new JButton("Depôt");
+		JButton deposit=new JButton("Dépôt");
 		JButton withdrawal=new JButton("Retrait");
 		JLabel jl_message=new JLabel(" ");
 		JButton back=new JButton("Retour");
 	
-	public Update(){
+	public UpdateGui(){
 		this.setSize(200, 200);
 		this.setTitle("Modifier");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -66,7 +71,7 @@ public class Update extends JFrame implements ActionListener {
 		if(e.getSource()==back)
 		{
 			this.setVisible(false);
-			Customers c=new Customers();
+			MainMenuGui c=new MainMenuGui();
 			
 		}
 		
@@ -74,8 +79,7 @@ public class Update extends JFrame implements ActionListener {
 		{
 			
 
-//			JFrame frame=new JFrame("JOptionPane showMessageDialog");
-//			JOptionPane.showMessageDialog(frame, "Votre dépôt à bien été effectué");
+
 		System.out.println("valider");	
 			
 			 int countCH = Integer.parseInt(JT_count.getText());

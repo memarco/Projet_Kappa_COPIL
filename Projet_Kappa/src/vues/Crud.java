@@ -13,6 +13,13 @@ package vues;
 	import java.util.Properties;
 
 	public class Crud{
+		
+		/**
+		 *  CRUD FUNCTIONS
+		 *  
+		 * @throws FileNotFoundException
+		 * @throws IOException
+		 */
 
 		public void insert(String first_name, String last_name, int age,
 				String sexe, String activity, String address)
@@ -20,7 +27,6 @@ package vues;
 
 			Properties props = new Properties();
 			props.load(new FileInputStream("connection.properties"));
-
 			String theDburl = props.getProperty("dburl");
 			String theUser = props.getProperty("user");
 			String thePassword = props.getProperty("password");
@@ -176,6 +182,8 @@ package vues;
 			}
 		}
 
+		
+		
 	}
 
 

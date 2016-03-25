@@ -1,4 +1,4 @@
-package Handler;
+package Controler;
 
 import java.awt.Dimension;
 import java.awt.HeadlessException;
@@ -11,16 +11,23 @@ import java.net.Socket;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import reponse.ResponseDeleteAndInsert;
-import reponse.ResponseUpdateAndResearch;
 import vues.Accounts;
 import vues.Customer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+/**
+ * This class manage the transmission and reception of data from the IHM to the server. 
+ * 
+ * @version 2015-2016
+ * @author Kappa
+ *
+ */
 public class ProtocoleHandler {
-
+/**
+ * It's the socket for client/server communication.
+ */
 	Socket S = getS();
 
 	private Socket getS() {
@@ -32,12 +39,25 @@ public class ProtocoleHandler {
 		}
 	}
 
-	public String insert(String nom, String prenom, int age, String sexe,
+	/**
+	 * 
+	 * his method retrieve customer information, 
+	 * transformed into GSON object and then send it to the server thanks to the socket .
+	 * @param lastname
+	 * @param firstname
+	 * @param age
+	 * @param sexe
+	 * @param adresse
+	 * @param activity
+	 * @return
+	 * @throws IOException
+	 */
+	public String insert(String lastname, String firstname, int age, String sexe,
 			String adresse, String activity) throws IOException {
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-		Customer cusJson = new Customer(nom, prenom, age, sexe, adresse,
+		Customer cusJson = new Customer(lastname, firstname, age, sexe, adresse,
 				activity);
 
 		String req = gson.toJson(cusJson);
@@ -52,12 +72,13 @@ public class ProtocoleHandler {
 		// to read the response
 		String response = "";
 		do {
-			response += in.readLine() + '\n';// TODO paramétré le temps
-												// d'attente max
+			response += in.readLine() + '\n';
 		} while (in.ready());
 		
 		
-		// switch the response of the serveur
+		/**
+		 *  Checks the response from the server
+		 */
 		
 		try {
 			switch (getStatus(response)) {
@@ -92,11 +113,15 @@ public class ProtocoleHandler {
 		return response;
 	}
 	
-
+/**
+ * This method get an account number, create a Gson object,
+ *  and send it to the server.
+ * @param numCount
+ * @return
+ * @throws IOException
+ */
 public String Research(int numCount) throws IOException{
 	
-	
-		
 		PrintWriter out = new PrintWriter(S.getOutputStream(), true);
 		BufferedReader in = new BufferedReader(new InputStreamReader(S.getInputStream()));
 		
@@ -115,10 +140,12 @@ public String Research(int numCount) throws IOException{
 		out.println(req);
 		
 		
-		// to read the response
+		/**
+		 * Read the response of the server.
+		 */
 		String response = "";
 		do {
-			response += in.readLine() + '\n';//TODO paramétré le temps d'attente max
+			response += in.readLine() + '\n';
 		} while (in.ready());
 		
 		System.out.println(response);
@@ -260,6 +287,14 @@ public String Research(int numCount) throws IOException{
 		return response;
 	}
 
+	/**
+	 * this method retrieve the response from the server.
+	 * extract the label to know the nature of the response from the server.
+	 * return the balance or an error message
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 
 	public int getResponse(String response) throws Exception {
 		int balance =0 ;
@@ -293,6 +328,14 @@ public String Research(int numCount) throws IOException{
 	}
 	
 	
+	/**
+	 * this method retrieve the response from the server.
+	 * extract the label to know the nature of the response from the server.
+	 * return the status.
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 	public String getStatus(String response) throws Exception {
 	 String status = null ;
 

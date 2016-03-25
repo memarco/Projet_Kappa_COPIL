@@ -17,13 +17,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import Handler.ProtocoleHandler;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class Delete extends JFrame implements ActionListener {
+import Controler.ProtocoleHandler;
+
+public class DeleteGui extends JFrame implements ActionListener {
 	
+	/**
+	 * This class manages the removal of our bank account
+	 */
 	
 	//---------------------------- for delete-----------
 		JLabel id= new JLabel("Numéro d'identidiant:");
@@ -32,7 +35,7 @@ public class Delete extends JFrame implements ActionListener {
 		JButton back=new JButton("Retour");
 		
 		
-		public Delete()
+		public DeleteGui()
 		{
 			
 			this.setSize(300, 200);
@@ -65,7 +68,7 @@ public class Delete extends JFrame implements ActionListener {
 			if(e.getSource()==back)
 			{
 				this.setVisible(false);
-				Customers c=new Customers();
+				MainMenuGui c=new MainMenuGui();
 				
 			}
 			else if(e.getSource()==delete){

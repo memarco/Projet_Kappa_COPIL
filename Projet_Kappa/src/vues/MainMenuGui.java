@@ -11,14 +11,18 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-public class Customers extends JFrame implements ActionListener {
+public class MainMenuGui extends JFrame implements ActionListener {
 
+	/**
+	 * Class that manages the interface with users;
+	 * this class is also launching the client application
+	 **/
 	JButton insert;
 	JButton update;
 	JButton research;
 	JButton delete;
 
-	public Customers() {
+	public MainMenuGui() {
 
 		this.setTitle("BANQUE D'ECHANGE MUTUALISTE");
 		JLabel label = new JLabel();
@@ -27,7 +31,7 @@ public class Customers extends JFrame implements ActionListener {
 
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setVerticalAlignment(JLabel.CENTER);
-		label.setText("Veuillez selectionner votre opération");
+		label.setText("Veuillez sélectionner votre opération");
 
 		setLayout(new GridLayout(0, 1));
 
@@ -39,8 +43,8 @@ public class Customers extends JFrame implements ActionListener {
 		this.setResizable(false);
 		this.setBackground(Color.DARK_GRAY);
 
-		insert = new JButton("Inserer un nouveau client");
-		update = new JButton("Effectuer un retrait/depot");
+		insert = new JButton("Insérer un nouveau client");
+		update = new JButton("Effectuer un retrait/dépôt");
 		research = new JButton("Voir le solde d'un compte");
 		delete = new JButton("supprimer un compte");
 
@@ -64,29 +68,29 @@ public class Customers extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JButton s = (JButton) e.getSource();
+		JButton button = (JButton) e.getSource();
 
-		if (s == insert) {
-			Insert in = new Insert();
+		if (button == insert) {
+			InsertGui in = new InsertGui();
 
 		}
 
-		else if (s == update) {
-			Update up = new Update();
+		else if (button == update) {
+			UpdateGui up = new UpdateGui();
 		}
 
-		else if (s == research) {
-			Research re = new Research();
+		else if (button == research) {
+			ResearchGui re = new ResearchGui();
 		}
 
-		else if (s == delete) {
-			Delete del = new Delete();
+		else if (button == delete) {
+			DeleteGui del = new DeleteGui();
 		}
 
 	}
 
 	public static void main(String[] args) {
-		Customers c = new Customers();
+		MainMenuGui customer = new MainMenuGui();
 	}
 
 }

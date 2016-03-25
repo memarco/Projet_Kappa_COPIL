@@ -22,14 +22,12 @@ import javax.swing.JTextField;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import Handler.ProtocoleHandler;
-public class Insert extends JFrame implements ActionListener {
+import Controler.ProtocoleHandler;
+public class InsertGui extends JFrame implements ActionListener {
 	 
-//	public static final String DB_DRIVER_NAME= "oracle.jdbc.driver.OracleDriver" ;
-//	
-//public static final String DB_URL=jdbc:oracle:thin:@localhost:1521/xe
-//	public static final String DB_CONNECTION_LOGIN= "System" ;
-//	public static final String DB_CONNECTION_PASSWORD= "ZleqTah("  ;
+/**
+ * This class manages the insertion of new customer in our database
+ */
 	
 	//---------- for insert ----------------
 		JLabel first_name= new JLabel("NOM:");
@@ -58,7 +56,7 @@ public class Insert extends JFrame implements ActionListener {
 		
 		
 		
-		public Insert(){
+		public InsertGui(){
 			
 			//---- for insert a customers	
 			JPanel panel1=new JPanel();
@@ -105,7 +103,7 @@ public class Insert extends JFrame implements ActionListener {
 			if(e.getSource()==back)
 			{
 				this.setVisible(false);
-				Customers c=new Customers();
+				MainMenuGui c=new MainMenuGui();
 				
 			}
 			else if(e.getSource()== exit)
@@ -158,9 +156,6 @@ public class Insert extends JFrame implements ActionListener {
 			}
 			
 		}
-		
-		public static void main(String[] args) {
-			new Insert();
-		}
+	
 
 }

@@ -15,20 +15,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import Handler.ProtocoleHandler;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class Research extends JFrame implements ActionListener {
+import Controler.ProtocoleHandler;
 
+public class ResearchGui extends JFrame implements ActionListener {
+/**
+ *This class manages the consultation customer's account
+ **/
 	JLabel jl_text = new JLabel(
 			"Indiquez le nom ou l'identifiant de recherche:");
 	JTextField name = new JTextField(10);
 	JButton by_id = new JButton("Lancer la recherche");
 	JButton back = new JButton("Retour");
 
-	public Research() {
+	public ResearchGui() {
 		this.setSize(620, 200);
 		this.setTitle("Rechercher");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -57,7 +59,7 @@ public class Research extends JFrame implements ActionListener {
 
 		if (e.getSource() == back) {
 			this.setVisible(false);
-			Customers c = new Customers();
+			MainMenuGui c = new MainMenuGui();
 
 		} else if (e.getSource() == by_id) {
 
