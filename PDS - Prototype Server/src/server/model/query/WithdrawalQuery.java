@@ -1,5 +1,10 @@
 package server.model.query;
 
+/**
+ * Communication class. See the protocol's documentation for more details.
+ * @version R1 sprint 4 - 06/02/2016
+ * @author Kappa-V
+ */
 public class WithdrawalQuery {
 	private long account_id;
 	private double value;
