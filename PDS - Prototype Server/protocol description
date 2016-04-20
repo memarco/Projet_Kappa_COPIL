@@ -1,0 +1,65 @@
+######################		STATE ONE : LOGIN PHASE		######################
+
+Client:
+				AUTH {"id": STRING, "password": STRING}
+Server:
+				OK {"status": OK/KO, "wrong_id": BOOLEAN, "your_authorization_level": NUMBER}
+
+This is how you interpret and create this response :
+	if (status == ok)
+		your_authorization_level contains the information the GUI needs to display the main menu properly.
+	else
+		If (wrong_id == true) the user id was wrong
+		else the password was wrong.
+
+Authorization levels :
+	1 - Customer
+	2 - Adviser
+	3 - Agency director
+	4 - Technical Department
+
+
+######################		STATE TWO : COMMUNICATION		######################
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+Method name			|	Client-side request					|	 Server-side normal response	|		Required Authorization level	|
+-----------------------------------------------------------------------------------------------------------------------------------------
+SELECT				|   CONSULT {"account_id": NUMBER}		|	 OK {"balance": NUMBER}			|					1					|
+-----------------------------------------------------------------------------------------------------------------------------------------
+INSERT				|   NEWCUSTOMER {TOUS LES CHAMPS}	 	|	 OK {"status": OK/KO}			|					2					|
+-----------------------------------------------------------------------------------------------------------------------------------------
+UPDATE				|   WITHDRAWAL {"account_id": NUMBER,	|	 OK {"balance": NUMBER}			|					1					|
+					|	        "value": NUMBER}			|									|										|
+-----------------------------------------------------------------------------------------------------------------------------------------
+DELETE				|   DELETE {"account_id": NUMBER}	  	|	 OK {"status": OK/KO}			|					3					|
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+If the client uses one of these requests without being authenticated, or without having the required authorization level, the server will answer with this:
+						UNAUTHORIZED {"connected": BOOLEAN, "your_authorization_level": NUMBER, "required_authorization_level": NUMBER}
+
+Either (connected == false) and the rest of the object is not relevant, or (connected == true) and the rest of the object helps to describe the authorization mismatch.
+
+
+
+In case another error occurs, the server answers with this :
+						ERR {"message": STRING}
+
+Note that these errors mean it is not useful to try again. These errors can be caused by :
+	-Server-side inability to connect to the database
+	-The client-side request was ill-formated. Bad examples :
+					zefzef {"account_id": NUMBER} 				<- Unknown prefix
+					CONSULT zegfzregrzeg						<- No content, or ill-formated content  
+					CONSULT{"account_id": NUMBER}				<- No space between prefix and content. Will be treated the same way as "unknown prefix".
+					CONSULT {"account_id": BOOLEAN}				<- Deserialization error. Notice how the object doesn't match the class we expect it to be an instance of.
+
+
+
+######################		STATE THREE : DISCONNECTION		######################
+
+Client:
+					BYE
+
+
+
+
+
