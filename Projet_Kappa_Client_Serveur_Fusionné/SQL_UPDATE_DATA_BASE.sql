@@ -1,0 +1,28 @@
+
+delete from accounts;
+delete from customers ;
+
+
+CREATE SEQUENCE customer_seq
+  MINVALUE 1
+  START WITH 1
+  INCREMENT BY 1
+  CACHE 20;
+
+
+
+CREATE SEQUENCE account_seq
+  MINVALUE 1
+  START WITH 1
+  INCREMENT BY 1
+  CACHE 20;
+
+
+INSERT INTO customers VALUES (customer_seq.NEXTVAL, 'NDIAYE', 'BOUBACAR', 24, 'M', 'X', 'Y');
+INSERT INTO customers VALUES (customer_seq.NEXTVAL, 'HAMDACHE', 'LYNDA', 23, 'F', 'Y', 'YY');
+
+INSERT INTO ACCOUNTS VALUES(account_seq.NEXTVAL,1,100100,'20/10/2015',14000);
+INSERT INTO ACCOUNTS VALUES(account_seq.NEXTVAL,2,10050,'20/07/2015',17000);
+
+
+
