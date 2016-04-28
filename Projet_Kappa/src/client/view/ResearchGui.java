@@ -18,7 +18,7 @@ import javax.swing.JTextField;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import client.controller.ClientSideProtocolHandler;
+import client.controller.ProtocolHandler;
 
 public class ResearchGui extends JFrame implements ActionListener {
 /**
@@ -66,7 +66,7 @@ public class ResearchGui extends JFrame implements ActionListener {
 			System.out.println("valider");
 			int account_id = Integer.parseInt(name.getText());
 
-			ClientSideProtocolHandler protocolehandler = new ClientSideProtocolHandler();
+			ProtocolHandler protocolehandler = new ProtocolHandler();
 			try {
 				protocolehandler.Research(account_id);
 			} catch (IOException e1) {

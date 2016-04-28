@@ -21,7 +21,7 @@ import javax.swing.JTextField;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import client.controller.ClientSideProtocolHandler;
+import client.controller.ProtocolHandler;
 import model.query.NewCustomerQuery.Gender;
 
 public class InsertGui extends JFrame implements ActionListener {
@@ -117,7 +117,7 @@ public class InsertGui extends JFrame implements ActionListener {
 		else if (e.getSource() == submit) {
 
 			System.out.println("valider");
-			final ClientSideProtocolHandler c = new ClientSideProtocolHandler();
+			final ProtocolHandler c = new ProtocolHandler();
 
 			final String nameFIRST = JT_first_name.getText();
 			final String nameLAST = JT_last_name.getText();

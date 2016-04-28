@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import client.controller.ClientSideProtocolHandler;
+import client.controller.ProtocolHandler;
 
 public class DeleteGui extends JFrame implements ActionListener {
 	
@@ -74,7 +74,7 @@ public class DeleteGui extends JFrame implements ActionListener {
 				System.out.println("valider");	
 				int idCH=Integer.parseInt(JT_id.getText());
 				
-				ClientSideProtocolHandler  Ph = new ClientSideProtocolHandler();
+				ProtocolHandler  Ph = new ProtocolHandler();
 				
 				try {
 					Ph.delete(idCH);

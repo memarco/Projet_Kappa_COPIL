@@ -21,7 +21,7 @@ import javax.swing.JTextField;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import client.controller.ClientSideProtocolHandler;
+import client.controller.ProtocolHandler;
 
 public class UpdateGui extends JFrame implements ActionListener {
 	
@@ -85,7 +85,7 @@ public class UpdateGui extends JFrame implements ActionListener {
 			 int countCH = Integer.parseInt(JT_count.getText());
 			double balanceCH = Integer.parseInt(JT_balance.getText());
 			
-			ClientSideProtocolHandler cH = new ClientSideProtocolHandler();
+			ProtocolHandler cH = new ProtocolHandler();
 			try {
 				cH.Update(countCH, balanceCH);
 			} catch (IOException e1) {
@@ -105,7 +105,7 @@ public class UpdateGui extends JFrame implements ActionListener {
 			 int countCH = Integer.parseInt(JT_count.getText());
 			int balanceCH = Integer.parseInt(JT_balance.getText());
 			
-			ClientSideProtocolHandler cH = new ClientSideProtocolHandler();
+			ProtocolHandler cH = new ProtocolHandler();
 			try {
 				cH.Update(countCH, -balanceCH);
 			} catch (IOException e1) {

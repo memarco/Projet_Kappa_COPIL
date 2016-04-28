@@ -35,7 +35,7 @@ import util.KappaProperties;
  * 			Renamed ClientSideProtocolHandler from ProtocolHandlerClient</br>
  * 			Now uses the properties file instead of a hard coded port
  */
-public class ClientSideProtocolHandler {
+public class ProtocolHandler {
 /**
  * It's the socket for client/server communication.
  */
