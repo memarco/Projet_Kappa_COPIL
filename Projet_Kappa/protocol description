@@ -21,18 +21,22 @@ Authorization levels :
 
 ######################		STATE TWO : COMMUNICATION		######################
 
------------------------------------------------------------------------------------------------------------------------------------------
-Method name			|	Client-side request					|	 Server-side normal response	|		Required Authorization level	|
------------------------------------------------------------------------------------------------------------------------------------------
-SELECT				|   CONSULT {"account_id": NUMBER}		|	 OK {"balance": NUMBER}			|					1					|
------------------------------------------------------------------------------------------------------------------------------------------
-INSERT				|   NEWCUSTOMER {TOUS LES CHAMPS}	 	|	 OK {"status": OK/KO}			|					2					|
------------------------------------------------------------------------------------------------------------------------------------------
-UPDATE				|   WITHDRAWAL {"account_id": NUMBER,	|	 OK {"balance": NUMBER}			|					1					|
-					|	        "value": NUMBER}			|									|										|
------------------------------------------------------------------------------------------------------------------------------------------
-DELETE				|   DELETE {"account_id": NUMBER}	  	|	 OK {"status": OK/KO}			|					3					|
------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		Client-side query				|		 Server-side normal response			|		Required Authorization level	|								Comments						|
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	getAccounts {"firstName":STRING,	|	OK {"accounts": STRING[]}					|					2					|	The query contains optional search parameters. 				|
+			"lastName":STRING,			|												|										|	Set firstName and/or lastName to null if you do not wish to	|
+			"myCustomers": BOOL}		|												|										|	perform an advanced search.									|
+										|												|										|	myCustomers is a bool that will determine if the search will|
+										|												|										|	go through all customers or just the one whose adviser is	|
+										|												|										|	the current user.											|
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+	getSims {"account_id":STRING}		|	OK {"simulations": [						|					1					|	Searches with all the simulations associated with an account|
+										|			{"name": STRING,					|										|	if simulations==null, the account didn't exist				|
+										|			 "id": STRING}						|										|	if simulations==[], the account has no simulations yet		|
+										|		]}										|										|																|
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	getSim {"sim_id": STRING}			|	OK { TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
 
 If the client uses one of these requests without being authenticated, or without having the required authorization level, the server will answer with this:
 						UNAUTHORIZED {"connected": BOOLEAN, "your_authorization_level": NUMBER, "required_authorization_level": NUMBER}

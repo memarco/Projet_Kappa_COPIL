@@ -1,25 +1,13 @@
 package server;
 
-import java.lang.Thread.State;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import model.query.AuthenticationQuery;
-import model.query.ConsultQuery;
-import model.query.DeleteQuery;
-import model.query.NewCustomerQuery;
-import model.query.WithdrawalQuery;
-import model.response.AuthenticationServerResponse;
-import model.response.ConsultServerResponse;
-import model.response.DeleteServerResponse;
-import model.response.ErrorServerResponse;
-import model.response.NewCustomerServerResponse;
-import model.response.ServerResponse;
-import model.response.WithdrawalServerResponse;
+import model.query.*;
+import model.response.*;
+import model.response.GetSimsServerResponse.SimulationIdentifier;
 
 import org.apache.log4j.Logger;
 
@@ -32,9 +20,11 @@ import org.apache.log4j.Logger;
  * @version R3 sprint 1 - 18/04/2016
  * @author Kappa-V
  * @changes
- * 		R2 sprint 1 -> R3 sprint 1 : </br>
+ * 		R3 sprint 1 -> R3 sprint 2:</br>
+ * 			-Removed the deprecated methods
+ * 		R2 sprint 1 -> R3 sprint 1: </br>
  * 			-addition of the handleAuthQuery method</br>
- * 			-removal of the handleMessage method. It was moved to the Session class instead.
+ * 			-removal of the handleMessage method. It was moved to the Session class instead.</br>
  */
 public abstract class MessageHandler {
 	/**
@@ -99,236 +89,82 @@ public abstract class MessageHandler {
 	}
 	
 	/**
-	 * Asks the database to delete an account
-	 * @param deleteQuery : the client's query
-	 * @return the server's response to the query. 
+	 * Searches for accounts.
+	 * @param query : contains optional search parameters:</br>
+	 * If firstName or lastName are not null, they will be used as search parameters.</br>
+	 * If myCustomers is true, the search will only take into account customers whose 
+	 * adviser is the current user.
+	 * @return the server's response to the query. Never null nor an exception.
 	 */
-	public static ServerResponse handleDeleteQuery(DeleteQuery deleteQuery) {
-		logger.trace("Entering MessageHandler.handleDeleteQuery");
+	public static ServerResponse handleGetAccountsQuery(GetAccountsQuery query, String user_id) {
+		logger.trace("Entering MessageHandler.handleGetAccountsQuery");
 		
-		// Acquiring the JDBC connection from the pool
+		// Constructing the SQL query
+		String SQLquery = "SELECT A.Account_Id FROM ACCOUNTS";
+		
+		if((query.getFirstName() != null) || (query.getLastName() != null) || (query.isMyCustomers())) {
+			 SQLquery+= " A INNER JOIN CUSTOMERS C ON A.Customer_Id=C.Customer_Id WHERE ";
+		}
+		
+		boolean first = true;
+		if(query.getFirstName() != null) {
+			first = false;
+			
+			SQLquery += "C.First_Name LIKE '" + query.getFirstName() + "'";
+		}
+		
+		if(query.getFirstName() != null) {
+			if(!first) {
+				SQLquery += " AND ";
+			} else {
+				first = false;
+			}
+			
+			SQLquery += "C.Last_Name LIKE '" + query.getLastName() + "'";
+		}
+		
+		if(query.isMyCustomers()) {
+			if(!first) {
+				SQLquery += " AND ";
+			}
+			
+			SQLquery += "C.Advisor_Id IN (SELECT Advisor_Id FROM EMPLOYEES WHERE User_login='" + user_id + "')";
+		}
+		
+		
+		
+		// Connection and treatment
 		Connection databaseConnection;
 		try {
 			databaseConnection = ConnectionPool.acquire();
-		} catch (IllegalStateException | ClassNotFoundException | SQLException e) {
-			logger.trace("Exiting MessageHandler.handleDeleteQuery");
+		} catch (Exception e) {
+			logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
 			logger.warn("Can't acquire a connection from the pool", e);
 			return new ErrorServerResponse("Server-side error. Please retry later.");
 		}
 		
 		try {
-			// The SQL query which will be executed. Update when the database metamodel is updated.
-			String SQLquery = "DELETE FROM ACCOUNTS WHERE ACCOUNT_ID="+deleteQuery.getAccount_id();
-			
-			
-			// Creating, executing, and closing the statement
-			Statement statement = databaseConnection.createStatement();
-			
-			try {
-				if(statement.executeUpdate(SQLquery) != 1) {
-					logger.trace("Exiting MessageHandler.handleDeleteQuery");
-					return new DeleteServerResponse(DeleteServerResponse.Status.KO);
-				}
-			} catch (SQLException e) {
-				logger.warn("SQLException caught", e);
-				throw e;
-			} finally {
-				// Good practice : the cleanup code is in a finally block.
-				statement.close();
-			}
-			
-			// Now that the cleanup is complete, the method can return
-			return new DeleteServerResponse(DeleteServerResponse.Status.OK);
-		} catch (SQLException e) {
-			logger.warn("SQLException caught", e);
-			logger.trace("Exiting MessageHandler.handleDeleteQuery");
-			return new ErrorServerResponse("Database error");
-		} finally {
-			// Good practice : the cleanup code is in a finally block.
-			ConnectionPool.release(databaseConnection);
-		}
-	}
-
-	
-	/**
-	 * Asks the database to update the balance value of an account.
-	 * @param withdrawalQuery : the client's query
-	 * @return the server's response. Can be a WithdrawalServerResponse, or a ErrorServerResponse if a SQL error happened and wasn't supposed to.
-	 */
-	public static ServerResponse handleWithdrawalQuery(WithdrawalQuery withdrawalQuery) {
-		logger.trace("Entering MessageHandler.handleWithdrawalQuery");
-		
-		// Acquiring the JDBC connection from the pool
-		Connection databaseConnection;
-		try {
-			databaseConnection = ConnectionPool.acquire();
-		} catch (IllegalStateException | ClassNotFoundException | SQLException e) {
-			logger.warn("Can't acquire a connection from the pool", e);
-			logger.trace("Exiting MessageHandler.handleWithdrawalQuery");
-			return new ErrorServerResponse("Server-side error.");
-		}
-		
-		try {
-			// The SQL queries which will be executed. Update when the database metamodel is updated.
-			String SQLquery = "UPDATE ACCOUNTS SET BALANCE=BALANCE" 
-						+ ((withdrawalQuery.getValue()>=0)?'+':"") // Handling the value's sign : for negative values, the minus sign is already there
-						+ withdrawalQuery.getValue()
-						+ " WHERE ACCOUNT_ID="
-						+ withdrawalQuery.getAccount_id();
-			String SQLquery2 = "SELECT BALANCE FROM ACCOUNTS WHERE ACCOUNT_ID=" + withdrawalQuery.getAccount_id();
-			
-			// Creating, executing, and closing the statement
-			Statement statement = databaseConnection.createStatement();
-			
-			try {
-				statement.executeUpdate(SQLquery);
-			} catch (SQLException e) {
-				/* If any error happened at this point (no lines 
-				 * were changed, a trigger threw an exception, 
-				 * etc...) then the client will know by seeing 
-				 * that the balance did not change. 
-				 * Therefore, the return value of "executeUpdate"
-				 * as well as this "catch" block are not used.
-				 * We still log it just in case.*/
-				logger.warn("Non-problematic exception caught", e);
-			}
-			
-			
-			try {
-				ResultSet results = statement.executeQuery(SQLquery2);
-
-				double balance;
-				if(results.next()) {
-					balance = results.getDouble(1);
-				} else {
-					throw new SQLException("No results");
-				}
-				logger.trace("Exiting MessageHandler.handleWithdrawalQuery");
-				return new WithdrawalServerResponse(balance);
-			} catch (Exception e) {
-				throw e;
-			} finally {
-				// Good practice : the cleanup code is in a finally block.
-				statement.close();
-			}
-		} catch (SQLException e) {
-			logger.warn("Exception caught", e);
-			logger.trace("Exiting MessageHandler.handleWithdrawalQuery");
-			return new ErrorServerResponse("Database error");
-		} finally {
-			// Good practice : the cleanup code is in a finally block.
-			ConnectionPool.release(databaseConnection);
-		}
-	}
-
-
-	/**
-	 * Asks the database to create a new customer.
-	 * @param withdrawalQuery : the client's query
-	 * @return the server's response. Can be a WithdrawalServerResponse, or a ErrorServerResponse if a SQL error happened and wasn't supposed to.
-	 */
-	public static ServerResponse handleNewCustomerQuery(NewCustomerQuery newCustomerQuery) {
-		logger.trace("Entering MessageHandler.handleNewCustomerQuery");
-		
-		// Acquiring the JDBC connection from the pool
-		Connection databaseConnection;
-		try {
-			databaseConnection = ConnectionPool.acquire();
-		} catch (IllegalStateException | ClassNotFoundException | SQLException e) {
-			logger.warn("Can't acquire connection", e);
-			logger.trace("Exiting MessageHandler.handleNewCustomerQuery");
-			return new ErrorServerResponse("Server-side error.");
-		}
-		
-		try {
-			// The SQL query which will be executed. Update when the database metamodel is updated.
-			String SQLquery = "INSERT INTO customers "
-					+ "VALUES(customer_seq.NEXTVAL, '" 
-					+ newCustomerQuery.getFirst_name() + "', '" + newCustomerQuery.getLast_name() + "', "
-					+ newCustomerQuery.getAge() + ", '" + newCustomerQuery.getSex() + "', '" 
-					+ newCustomerQuery.getActivity() + "', '" + newCustomerQuery.getAdress() + "')";
-
-			// Creating, executing, and closing the statement
-			Statement statement = databaseConnection.createStatement();
-			System.out.println(SQLquery);
-			
-	
-			try {
-					if(statement.executeUpdate(SQLquery) != 1)
-					System.out.println("Unable to insert");
-			} catch (SQLException e) {
-				logger.warn("SQL Exception caught", e);
-				logger.trace("Exiting MessageHandler.handleNewCustomerQuery");
-				return new NewCustomerServerResponse(NewCustomerServerResponse.Status.KO);
-			} finally {
-				// Good practice : the cleanup code is in a finally block.
-				databaseConnection.commit();
-				statement.close();
-				
-				
-			}
-			
-			// Now that the cleanup is complete, the method can return
-			logger.trace("Exiting MessageHandler.handleNewCustomerQuery");
-			return new NewCustomerServerResponse(NewCustomerServerResponse.Status.OK);
-		} catch (SQLException e) {
-			logger.warn("Exception caught", e);
-			logger.trace("Exiting MessageHandler.handleNewCustomerQuery");
-			return new ErrorServerResponse("Database error. Please retry later.");
-		} finally {
-			// Good practice : the cleanup code is in a finally block.
-			
-			ConnectionPool.release(databaseConnection);
-		}
-	}
-
-
-	/**
-	 * Asks the database to provide the balance value of an account.
-	 * @param withdrawalQuery : the client's query
-	 * @return the server's response. Can be a WithdrawalServerResponse, or a ErrorServerResponse if a SQL error happened and wasn't supposed to.
-	 */
-	public static ServerResponse handleConsultQuery(ConsultQuery consultQuery) {
-		logger.trace("Entering MessageHandler.handleConsultQuery");
-		
-		// Acquiring the JDBC connection from the pool
-		Connection databaseConnection;
-		try {
-			databaseConnection = ConnectionPool.acquire();
-		} catch (IllegalStateException | ClassNotFoundException | SQLException e) {
-			logger.warn("Can't acquire a connection from the pool.", e);
-			logger.trace("Exiting MessageHandler.handleConsultQuery");
-			return new ErrorServerResponse("Server-side error.");
-		}
-		
-		try {
-			// The SQL query which will be executed. Update when the database metamodel is updated.
-			String SQLquery = "SELECT BALANCE FROM ACCOUNTS WHERE ACCOUNT_ID="+consultQuery.getAccount_id();
-			
-			// Creating, executing, and closing the statement
 			Statement statement = databaseConnection.createStatement();
 			
 			try {
 				ResultSet results = statement.executeQuery(SQLquery);
 				
-				if(results.next()) {
-					ServerResponse response = new ConsultServerResponse(results.getDouble(1));
-					logger.trace("Exiting MessageHandler.handleConsultQuery");
-					return response;
-				} else {
-					throw new SQLException("No results");
+				GetAccountsServerResponse response = new GetAccountsServerResponse();
+				
+				while(results.next()) {
+					response.addAccount(results.getString("Account_Id"));
 				}
+				
+				logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
+				return response;
 			} catch (SQLException e) {
-				logger.trace("Exiting MessageHandler.handleConsultQuery");
-				logger.warn("SQL Exception caught", e);
-				return new ErrorServerResponse("Account not found");
+				throw e;
 			} finally {
-				// Good practice : the cleanup code is in a finally block.
 				statement.close();
 			}
 		} catch (SQLException e) {
-			logger.warn("Exception caught", e);
-			logger.trace("Exiting MessageHandler.handleConsultQuery");
+			logger.warn("SQLException caught", e);
+			logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
 			return new ErrorServerResponse("Database error");
 		} finally {
 			// Good practice : the cleanup code is in a finally block.
@@ -336,6 +172,51 @@ public abstract class MessageHandler {
 		}
 	}
 	
-	
-	
+	/**
+	 * Searches for simulations associated with a particular account.
+	 * @param query : contains the account id.
+	 * @return the server's response to the query. Never null nor an exception.
+	 */
+	public static ServerResponse handleGetSimsQuery(GetSimsQuery query) {
+		logger.trace("Entering MessageHandler.handleGetSimsQuery");
+		
+		String SQLquery = "SELECT Loan_Id FROM Loans WHERE Is_Real='N' AND Account_Id='" + query.getAccount_id() + "'";
+		
+		Connection databaseConnection;
+		try {
+			databaseConnection = ConnectionPool.acquire();
+		} catch (Exception e) {
+			logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
+			logger.warn("Can't acquire a connection from the pool", e);
+			return new ErrorServerResponse("Server-side error. Please retry later.");
+		}
+		
+		try {
+			Statement statement = databaseConnection.createStatement();
+
+			try {
+				ResultSet results = statement.executeQuery(SQLquery);
+				
+				GetSimsServerResponse response = new GetSimsServerResponse();
+				
+				while(results.next()) {
+					response.addSimulation(new SimulationIdentifier(results.getString("Loan_Id"), results.getString("Name")));
+				}
+				
+				logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
+				return response;
+			} catch (SQLException e) {
+				throw e;
+			} finally {
+				statement.close();
+			}
+		} catch (SQLException e) {
+			logger.warn("SQLException caught", e);
+			logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
+			return new ErrorServerResponse("Database error");
+		} finally {
+			// Good practice : the cleanup code is in a finally block.
+			ConnectionPool.release(databaseConnection);
+		}
+	}
 }
