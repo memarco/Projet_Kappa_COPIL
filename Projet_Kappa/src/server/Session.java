@@ -8,6 +8,8 @@ import java.net.Socket;
 
 import model.query.AuthenticationQuery;
 import model.query.GetAccountsQuery;
+import model.query.GetSimQuery;
+import model.query.GetSimsQuery;
 import model.response.AuthenticationServerResponse;
 import model.response.ErrorServerResponse;
 import model.response.ServerResponse;
@@ -177,6 +179,20 @@ public class Session extends Thread {
 				}
 				GetAccountsQuery getAccountsQuery = JsonImpl.fromJson(content, GetAccountsQuery.class);
 				response = MessageHandler.handleGetAccountsQuery(getAccountsQuery, this.user_id);
+				break;
+			case "getSims":
+				if(authorization_level < 1) {
+					return new UnauthorizedErrorServerResponse((this.user_id == null), this.authorization_level, 1);
+				}
+				GetSimsQuery getSimsQuery = JsonImpl.fromJson(content, GetSimsQuery.class);
+				response = MessageHandler.handleGetSimsQuery(getSimsQuery);
+				break;
+			case "getSim":
+				if(authorization_level < 1) {
+					return new UnauthorizedErrorServerResponse((this.user_id == null), this.authorization_level, 1);
+				}
+				GetSimQuery getSimQuery = JsonImpl.fromJson(content, GetSimQuery.class);
+				response = MessageHandler.handleGetSimQuery(getSimQuery);
 				break;
 			default:
 				response = new ErrorServerResponse("Unknown prefix");

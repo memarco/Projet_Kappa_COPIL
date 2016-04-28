@@ -36,7 +36,27 @@ Authorization levels :
 										|			 "id": STRING}						|										|	if simulations==[], the account has no simulations yet		|
 										|		]}										|										|																|
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	getSim {"sim_id": STRING}			|	OK { TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
+	getSim {"sim_id": STRING}			|	OK {"name":String, "id":String,				|					1					|																|
+										|		"rateNature":fixed/floating,			|										|																|
+										|		"events": [								|										|																|
+										|			{"type":"LoanRedemption"/...,		|										|																|
+										|			"startDate":sql.Date,				|										|																|
+										|			"endDate":sql.Date,					|										|																|
+										|			"value":float,						|										|																|
+										|			"isReal":boolean}],					|										|																|
+										|		"repayments": [							|										|																|
+										|			{"date":sql.Date,					|										|																|
+										|			"capital":float,					|										|																|
+										|			"interest":float,					|										|																|
+										|			"insurance":float}],				|										|																|
+										|		"effectiveDate":sql.Date,				|										|																|
+										|		"capital":float,						|										|																|
+										|		"remainingOwedCapital":float,			|										|																|
+										|		"repaymentFrequency":int,				|										|																|
+										|		"remainingRepayments":int,				|										|																|
+										|		"amortizationType":steady/degressive,	|										|																|
+										|		"repaymentConstant":float}				|										|																|
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 If the client uses one of these requests without being authenticated, or without having the required authorization level, the server will answer with this:
 						UNAUTHORIZED {"connected": BOOLEAN, "your_authorization_level": NUMBER, "required_authorization_level": NUMBER}

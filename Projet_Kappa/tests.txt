@@ -1,13 +1,3 @@
-ZEFZHEFIL
-AUTH ZELFKNLK
-CONSULT {"account_id":1}
-AUTH {"id":"zirkmarkmwif", "password":"balalaika"}
-AUTH {"id":"Valentin", "password":"un mauvais password"}
-AUTH {"id":"Valentin", "password":"Valentin"}
-CONSULT {"account_id":1}
-CONSULT {"account_id":2}
-DELETE {"account_id":2}
-NEWCUSTOMER {"first_name":"Emmanuel", "last_name":"Polonowski", "age":40, "sex":"M", "activity":"Big Boss", "adress":"chez lui"}
-AUTH {"id":"Marc", "password":"Marc"}
-NEWCUSTOMER {"first_name":"Emmanuel", "last_name":"Polonowski", "age":40, "sex":"M", "activity":"Big Boss", "adress":"chez lui"}
+AUTH {"id":"Lynda", "password":"Lynda"}
+getAccounts {"myCustomers":true}
 BYE

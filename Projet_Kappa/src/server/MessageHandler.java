@@ -219,4 +219,90 @@ public abstract class MessageHandler {
 			ConnectionPool.release(databaseConnection);
 		}
 	}
+
+	/**
+	 * Searches for one simulation in particular
+	 * @param query : contains the simulation id.
+	 * @return the server's response to the query. Never null nor an exception.
+	 */
+	public static ServerResponse handleGetSimQuery(GetSimQuery query) {
+		logger.trace("Entering MessageHandler.handleGetSimQuery");
+		
+		// SQL queries
+		String SQLquery1 = "SELECT * FROM Repayments WHERE Scenario_Id='" + query.getSim_id() + "'";
+		String SQLquery2 = "SELECT * FROM Events WHERE Loan_Id='" + query.getSim_id() + "'";
+		String SQLquery3 = "SELECT * FROM Loans WHERE Loan_Id='" + query.getSim_id() + "'";
+//		String SQLquery4 = "SELECT Name FROM Loan_Types WHERE Loan_Type_Id='"; // Complete with the info from SQLquery 3
+		
+		// Connection and treatment
+		Connection databaseConnection;
+		try {
+			databaseConnection = ConnectionPool.acquire();
+		} catch (Exception e) {
+			logger.trace("Exiting MessageHandler.handleGetSimQuery");
+			logger.warn("Can't acquire a connection from the pool", e);
+			return new ErrorServerResponse("Server-side error. Please retry later.");
+		}
+		
+		try {
+			Statement statement = databaseConnection.createStatement();
+
+			try {
+				GetSimServerResponse response = new GetSimServerResponse();
+				
+				/* Repayments */
+				ResultSet results = statement.executeQuery(SQLquery1);
+				while(results.next()) {
+					response.getRepayments().add(new GetSimServerResponse.Repayment(
+						results.getDate("Date"),
+						results.getFloat("Capital"),
+						results.getFloat("Interest"),
+						results.getFloat("Insurance")
+					));
+				}
+				
+				
+				/* Events */ 
+				results = statement.executeQuery(SQLquery2);
+				while(results.next()) {
+					response.getEvents().add(new GetSimServerResponse.Event(
+						GetSimServerResponse.Event.EventType.valueOf(results.getString("Type")),
+						results.getDate("StartDate"),
+						results.getDate("EndDate"),
+						results.getFloat("Value"),
+						results.getBoolean("Is_Real")
+					));
+				}
+				
+				/* Other attributes */
+				results = statement.executeQuery(SQLquery3);
+				if(results.next()) {
+					response.setAmortizationType(GetSimServerResponse.AmortizationType.valueOf(results.getString("Amortization_Type")));
+					response.setCapital(results.getFloat("Capital"));
+					response.setEffectiveDate(results.getDate("Effective_Date"));
+					response.setId(query.getSim_id());
+					response.setName(results.getString("Name"));
+					response.setRemainingOwedCapital(results.getFloat("RemainingOwedCapital"));
+					response.setRemainingRepayments(results.getInt("Remaining_Repayments"));
+					response.setRepaymentConstant(results.getInt("Repayment_Constant"));
+					response.setRepaymentFrequency(results.getInt("Repayment_Frequency"));
+				}
+				
+				/* Return */
+				logger.trace("Exiting MessageHandler.handleGetSimQuery");
+				return response;
+			} catch (SQLException e) {
+				throw e;
+			} finally {
+				statement.close();
+			}
+		} catch (SQLException e) {
+			logger.warn("SQLException caught", e);
+			logger.trace("Exiting MessageHandler.handleGetSimQuery");
+			return new ErrorServerResponse("Database error");
+		} finally {
+			// Good practice : the cleanup code is in a finally block.
+			ConnectionPool.release(databaseConnection);
+		}
+	}
 }
