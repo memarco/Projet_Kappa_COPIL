@@ -9,17 +9,17 @@ import java.util.List;
  * @author Kappa-V
  */
 public class GetAccountsServerResponse extends ServerResponse {
-	private List<String> accounts;
+	private List<Account> accounts;
 	
-	public GetAccountsServerResponse(List<String> accounts) {
+	public GetAccountsServerResponse(List<Account> accounts) {
 		this.accounts = accounts;
 	}
 
-	public List<String> getAccounts() {
+	public List<Account> getAccounts() {
 		return accounts;
 	}
 
-	public void setAccounts(List<String> accounts) {
+	public void setAccounts(List<Account> accounts) {
 		this.accounts = accounts;
 	}
 	
@@ -28,7 +28,32 @@ public class GetAccountsServerResponse extends ServerResponse {
 		this.accounts = new ArrayList<>();
 	}
 	
-	public void addAccount(String account) {
-		accounts.add(account);
+	public void addAccount(String account_id, String account_num) {
+		accounts.add(new Account(account_id, account_num));
+	}
+
+	// Inner class
+	public static class Account {
+		private String account_id;
+		private String account_num;
+		
+		public Account(String account_id, String account_num) {
+			super();
+			this.account_id = account_id;
+			this.account_num = account_num;
+		}
+		
+		public String getAccount_id() {
+			return account_id;
+		}
+		public void setAccount_id(String account_id) {
+			this.account_id = account_id;
+		}
+		public String getAccount_num() {
+			return account_num;
+		}
+		public void setAccount_num(String account_num) {
+			this.account_num = account_num;
+		}
 	}
 }

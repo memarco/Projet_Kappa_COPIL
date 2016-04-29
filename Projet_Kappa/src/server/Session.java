@@ -29,6 +29,7 @@ import util.JsonImpl;
  * 		R3 sprint 1 -> R3 sprint 2: </br>
  * 			-Removed the calls to the deprecated consult, withdrawal, deleteCustomer and newCustomer MessageHandler methods
  * 			-Added the calls to the getAccounts, getSims, and getSim MessageHandler methods instead
+ * 			-Removed the unused password attribute
  * 		R2 sprint 1 -> R3 sprint 1: </br>
  * 			-renamed Session from ProtocolHandler</br>
  * 			-added user_id, password and authorization_level attributes to handle authentication</br>
@@ -55,11 +56,6 @@ public class Session extends Thread {
 	 * User id provided by the client during the authentication phase
 	 */
 	private String user_id = null;
-	
-	/**
-	 * Password provided by the client during the authentication phase
-	 */
-	private String password = null; //TODO: discuss whether to keep this attribute or not. It is currently not used, and might not be in the future.
 	
 	/**
 	 * User authorization level as dictated by the database during the authentication phase.
@@ -168,7 +164,6 @@ public class Session extends Thread {
 					if(authResponse.getStatus().equals(AuthenticationServerResponse.Status.OK)) {
 						this.authorization_level = authResponse.getYour_authorization_level();
 						this.user_id = authQuery.getId();
-						this.password = authQuery.getPassword();
 						logger.info(this.user_id + " logged in successfully.");
 					}
 				}

@@ -100,10 +100,10 @@ public abstract class MessageHandler {
 		logger.trace("Entering MessageHandler.handleGetAccountsQuery");
 		
 		// Constructing the SQL query
-		String SQLquery = "SELECT A.Account_Id FROM ACCOUNTS";
+		String SQLquery = "SELECT A.Account_Id, A.Account_Num FROM ACCOUNTS A";
 		
 		if((query.getFirstName() != null) || (query.getLastName() != null) || (query.isMyCustomers())) {
-			 SQLquery+= " A INNER JOIN CUSTOMERS C ON A.Customer_Id=C.Customer_Id WHERE ";
+			 SQLquery+= " INNER JOIN CUSTOMERS C ON A.Customer_Id=C.Customer_Id WHERE ";
 		}
 		
 		boolean first = true;
@@ -152,7 +152,7 @@ public abstract class MessageHandler {
 				GetAccountsServerResponse response = new GetAccountsServerResponse();
 				
 				while(results.next()) {
-					response.addAccount(results.getString("Account_Id"));
+					response.addAccount(results.getString("Account_Id"), results.getString("Account_Num"));
 				}
 				
 				logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
@@ -180,7 +180,7 @@ public abstract class MessageHandler {
 	public static ServerResponse handleGetSimsQuery(GetSimsQuery query) {
 		logger.trace("Entering MessageHandler.handleGetSimsQuery");
 		
-		String SQLquery = "SELECT Loan_Id FROM Loans WHERE Is_Real='N' AND Account_Id='" + query.getAccount_id() + "'";
+		String SQLquery = "SELECT Loan_Id, Name FROM Loans WHERE Is_Real='N' AND Account_Id='" + query.getAccount_id() + "'";
 		
 		Connection databaseConnection;
 		try {
@@ -200,7 +200,7 @@ public abstract class MessageHandler {
 				GetSimsServerResponse response = new GetSimsServerResponse();
 				
 				while(results.next()) {
-					response.addSimulation(new SimulationIdentifier(results.getString("Loan_Id"), results.getString("Name")));
+					response.addSimulation(new SimulationIdentifier(results.getString("Name"), results.getString("Loan_Id")));
 				}
 				
 				logger.trace("Exiting MessageHandler.handleGetAccountsQuery");
@@ -229,10 +229,9 @@ public abstract class MessageHandler {
 		logger.trace("Entering MessageHandler.handleGetSimQuery");
 		
 		// SQL queries
-		String SQLquery1 = "SELECT * FROM Repayments WHERE Scenario_Id='" + query.getSim_id() + "'";
+		String SQLquery1 = "SELECT * FROM Repayments WHERE \"Loan_Id\"='" + query.getSim_id() + "'";
 		String SQLquery2 = "SELECT * FROM Events WHERE Loan_Id='" + query.getSim_id() + "'";
 		String SQLquery3 = "SELECT * FROM Loans WHERE Loan_Id='" + query.getSim_id() + "'";
-//		String SQLquery4 = "SELECT Name FROM Loan_Types WHERE Loan_Type_Id='"; // Complete with the info from SQLquery 3
 		
 		// Connection and treatment
 		Connection databaseConnection;
@@ -263,16 +262,16 @@ public abstract class MessageHandler {
 				
 				
 				/* Events */ 
-				results = statement.executeQuery(SQLquery2);
-				while(results.next()) {
-					response.getEvents().add(new GetSimServerResponse.Event(
-						GetSimServerResponse.Event.EventType.valueOf(results.getString("Type")),
-						results.getDate("StartDate"),
-						results.getDate("EndDate"),
-						results.getFloat("Value"),
-						results.getBoolean("Is_Real")
-					));
-				}
+//				results = statement.executeQuery(SQLquery2);
+//				while(results.next()) {
+//					response.getEvents().add(new GetSimServerResponse.Event(
+//						GetSimServerResponse.Event.EventType.valueOf(results.getString("Type")),
+//						results.getDate("StartDate"),
+//						results.getDate("EndDate"),
+//						results.getFloat("Value"),
+//						results.getBoolean("Is_Real")
+//					));
+//				}
 				
 				/* Other attributes */
 				results = statement.executeQuery(SQLquery3);
