@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -36,10 +35,15 @@ import util.KappaProperties;
 
 /**
  * A Jframe used for the authentication phase.
- * @version R3 Sprint 1 - 18/04/2016
+ * @version R3 Sprint 2 - 29/04/2016
  * @Author Kappa-V
+ * @Changes
+ * 		R3 sprint 1 -> R3 sprint 2:</br>
+ * 			-Moved the main method to the MainMenuGUI class
  */
+@SuppressWarnings("serial") // Is not going to be serialized
 public class AuthGUI extends JFrame {
+
 	/**
 	 * An interface used like the Runnable interface, but with parameters.
 	 */
@@ -256,41 +260,6 @@ public class AuthGUI extends JFrame {
 						}).start();
 					}
 				});
-			}
-		});
-	}
-
-	/**
-	 * Example main method. Shows a dialog box if the user logs in properly.
-	 */
-	public static void main(String[] args) {
-		try {
-			KappaProperties.init();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			return;
-		}
-		JsonImpl.init();
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					final AuthGUI frame = new AuthGUI(new OnSuccessfulLoginRunnable(){
-						public void run(Socket S, final int authorization_level) {
-							JOptionPane.showMessageDialog(null, "You have succesfully connected ! Your authorization level is " + authorization_level + '.');
-							try {
-								PrintWriter out = new PrintWriter(S.getOutputStream(), true);
-								out.println("BYE");
-								S.close();
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-					});
-					frame.setVisible(true);
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "Unable to connect to the server. Please try again later.");
-				}
 			}
 		});
 	}
