@@ -7,10 +7,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import model.query.AuthenticationQuery;
-import model.query.ConsultQuery;
-import model.query.DeleteQuery;
-import model.query.NewCustomerQuery;
-import model.query.WithdrawalQuery;
+import model.query.GetAccountsQuery;
+import model.query.GetSimQuery;
+import model.query.GetSimsQuery;
 import model.response.AuthenticationServerResponse;
 import model.response.ErrorServerResponse;
 import model.response.ServerResponse;
@@ -27,9 +26,13 @@ import util.JsonImpl;
  * @version R3 sprint 1 - 13/04/2016
  * @author Kappa-V
  * @changes
+ * 		R3 sprint 1 -> R3 sprint 2: </br>
+ * 			-Removed the calls to the deprecated consult, withdrawal, deleteCustomer and newCustomer MessageHandler methods
+ * 			-Added the calls to the getAccounts, getSims, and getSim MessageHandler methods instead
+ * 			-Removed the unused password attribute
  * 		R2 sprint 1 -> R3 sprint 1: </br>
  * 			-renamed Session from ProtocolHandler</br>
- * 			-added user_id, password and authorization_level attributes to handle authentification</br>
+ * 			-added user_id, password and authorization_level attributes to handle authentication</br>
  * 			-added the handleMessage method which was previously in the MessageHandler class
  * 			-in handleMessage, added the new Auth method, and re-used prefixEnd's value when calculating the prefix String
  */
@@ -53,11 +56,6 @@ public class Session extends Thread {
 	 * User id provided by the client during the authentication phase
 	 */
 	private String user_id = null;
-	
-	/**
-	 * Password provided by the client during the authentication phase
-	 */
-	private String password = null; //TODO: discuss whether to keep this attribute or not. It is currently not used, and might not be in the future.
 	
 	/**
 	 * User authorization level as dictated by the database during the authentication phase.
@@ -166,38 +164,30 @@ public class Session extends Thread {
 					if(authResponse.getStatus().equals(AuthenticationServerResponse.Status.OK)) {
 						this.authorization_level = authResponse.getYour_authorization_level();
 						this.user_id = authQuery.getId();
-						this.password = authQuery.getPassword();
 						logger.info(this.user_id + " logged in successfully.");
 					}
 				}
 				break;
-			case "CONSULT":
-				if(authorization_level < 1) {
-					return new UnauthorizedErrorServerResponse((this.user_id == null), this.authorization_level, 1);
-				}
-				ConsultQuery consultQuery = JsonImpl.fromJson(content, ConsultQuery.class);
-				response = MessageHandler.handleConsultQuery(consultQuery);
-				break;
-			case "NEWCUSTOMER":
+			case "getAccounts":
 				if(authorization_level < 2) {
-					return new UnauthorizedErrorServerResponse((this.user_id == null), this.authorization_level, 2);
+					return new UnauthorizedErrorServerResponse((this.user_id==null), this.authorization_level, 2);
 				}
-				NewCustomerQuery newCustomerQuery = JsonImpl.fromJson(content, NewCustomerQuery.class);
-				response = MessageHandler.handleNewCustomerQuery(newCustomerQuery);
+				GetAccountsQuery getAccountsQuery = JsonImpl.fromJson(content, GetAccountsQuery.class);
+				response = MessageHandler.handleGetAccountsQuery(getAccountsQuery, this.user_id);
 				break;
-			case "WITHDRAWAL":
+			case "getSims":
 				if(authorization_level < 1) {
 					return new UnauthorizedErrorServerResponse((this.user_id == null), this.authorization_level, 1);
 				}
-				WithdrawalQuery withdrawalQuery = JsonImpl.fromJson(content, WithdrawalQuery.class);
-				response = MessageHandler.handleWithdrawalQuery(withdrawalQuery);
+				GetSimsQuery getSimsQuery = JsonImpl.fromJson(content, GetSimsQuery.class);
+				response = MessageHandler.handleGetSimsQuery(getSimsQuery);
 				break;
-			case "DELETE":
-				if(authorization_level < 3) {
-					return new UnauthorizedErrorServerResponse((this.user_id == null), this.authorization_level, 3);
+			case "getSim":
+				if(authorization_level < 1) {
+					return new UnauthorizedErrorServerResponse((this.user_id == null), this.authorization_level, 1);
 				}
-				DeleteQuery deleteQuery = JsonImpl.fromJson(content, DeleteQuery.class);
-				response = MessageHandler.handleDeleteQuery(deleteQuery);
+				GetSimQuery getSimQuery = JsonImpl.fromJson(content, GetSimQuery.class);
+				response = MessageHandler.handleGetSimQuery(getSimQuery);
 				break;
 			default:
 				response = new ErrorServerResponse("Unknown prefix");
