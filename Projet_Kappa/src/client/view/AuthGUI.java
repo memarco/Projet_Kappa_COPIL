@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import model.SessionInformation;
 import model.query.AuthenticationQuery;
 import model.response.AuthenticationServerResponse;
 import util.JsonImpl;
@@ -43,14 +44,6 @@ import util.KappaProperties;
  */
 @SuppressWarnings("serial") // Is not going to be serialized
 public class AuthGUI extends JFrame {
-
-	/**
-	 * An interface used like the Runnable interface, but with parameters.
-	 */
-	public interface OnSuccessfulLoginRunnable {
-		public void run(Socket S, int authorization_level);
-	}
-	
 	/**
 	 * Main constructor. Initializes the socket connection to the server, plans its own cleanup process, 
 	 * positions the various Swing components properly, and handles the authentication process in an event handler.
@@ -59,7 +52,7 @@ public class AuthGUI extends JFrame {
 	 * @throws IOException - if the server is unavailable.
 	 * @throws NullPointerException - if JsonImpl.init() had not been called yet.
 	 */
-	public AuthGUI(final OnSuccessfulLoginRunnable onSuccessfulLogin) throws IOException, NullPointerException {
+	public AuthGUI(final SessionSpecific onSuccessfulLogin) throws IOException, NullPointerException {
 		final AuthGUI thisObject = this;
 		
 		/* Network connection */
@@ -232,7 +225,7 @@ public class AuthGUI extends JFrame {
 														thisObject.dispose();
 													}
 												});
-												onSuccessfulLogin.run(connection, response.getYour_authorization_level()); // This is where the callable is used
+												onSuccessfulLogin.setSessionInformation(new SessionInformation(response.getYour_authorization_level(), loginField.getText(), connection)); // This is where the callable is used
 												break;
 											
 											// Unsuccessful connection attempt

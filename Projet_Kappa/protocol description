@@ -24,13 +24,16 @@ Authorization levels :
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		Client-side query				|		 Server-side normal response			|		Required Authorization level	|								Comments						|
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	getAccounts {"firstName":STRING,	|	OK {"accounts": [							|					2					|	The query contains optional search parameters. 				|
+	searchAccounts {"firstName":STRING,	|	OK {"accounts": [							|					2					|	The query contains optional search parameters. 				|
 			"lastName":STRING,			|			{"account_id":STRING,				|										|	Set firstName and/or lastName to null if you do not wish to	|
 			"myCustomers": BOOL}		|			"account_num":STRING}				|										|	perform an advanced search.									|
 										|		]}										|										|	myCustomers is a bool that will determine if the search will|
 										|												|										|	go through all customers or just the one whose adviser is	|
 										|												|										|	the current user.											|
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+----------------------------------------|												|---------------------------------------|---------------------------------------------------------------|
+	getAccounts	{"cust_login":STRING}	|												|					1					|	Second query to give access to this feature to customers as	|
+										|												|										|	well.														|
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	getSims {"account_id":STRING}		|	OK {"simulations": [						|					1					|	Searches with all the simulations associated with an account|
 										|			{"name": STRING,					|										|	if simulations==null, the account didn't exist				|
 										|			 "id": STRING}						|										|	if simulations==[], the account has no simulations yet		|
